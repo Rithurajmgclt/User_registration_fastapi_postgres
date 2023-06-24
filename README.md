@@ -1,6 +1,6 @@
-# User_registration_fastapi_postgres
+# User_registration_fastapi_postgres 
 
-
+**important create folder name "static" in root directory (along with miain.py)
 
 #create an .env file in root directory and add this
 
