@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String,ForeignKey
 from users.database import Base
-from sqlalchemy.dialects.postgresql import BYTEA
 from sqlalchemy.orm import relationship
 
 class User(Base):

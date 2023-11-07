@@ -3,11 +3,9 @@ import os
 import re
 import bcrypt
 from fastapi import APIRouter, UploadFile,File,Form,Depends,Request
-from users.schema import Usercreate,UserDetail
+from users.schema import UserDetail
 from users.models import User,Profile
-from users.database import SessionLocal, engine
-from sqlalchemy import select
-from pydantic import ValidationError, EmailStr, constr
+from pydantic import ValidationError, EmailStr
 from fastapi import Form
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
@@ -28,6 +26,9 @@ PASSWORD_REGEX = r"^(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=])[A-Za-z\d@#$%^&+=]{8,}$"
 
 @user_router.get("/users/{user_id}", response_model=UserDetail)
 async def get_user(user_id: int, request: Request, db: Session = Depends(get_db)):
+    """
+    function for user get
+    """
     user = db.query(User).get(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -44,6 +45,9 @@ async def get_user(user_id: int, request: Request, db: Session = Depends(get_db)
     return user_detail
 @user_router.get("/users/list/", response_model=list[UserDetail])
 async def get_user(db: Session = Depends(get_db)):
+    """
+    function for user list 
+    """
     users = db.query(User).all()
     if not users:
         raise HTTPException(status_code=404, detail="No users created")
@@ -64,6 +68,10 @@ async def get_user(db: Session = Depends(get_db)):
 
 
 def save_uploaded_file(file: UploadFile, file_path: str):
+    """
+    function to read image
+    """
+    
     with open(file_path, "wb") as buffer:
         while True:
             chunk = file.file.read(1024)
@@ -75,16 +83,19 @@ def save_uploaded_file(file: UploadFile, file_path: str):
 @user_router.post("/users/create")
 async def create_item(fullname: str = Form(...),
     email: EmailStr = Form(...),
-    phone: constr(regex=r'^\+\d{1,3}-\d{3,14}$') = Form(...),
-    password: str = Form(...), image: UploadFile = File(...),
+    phone: str = Form(...),
+    password: str = Form(...),
+    image: UploadFile = File(...),
     db: Session = Depends(get_db)):
+
+    """
+    function to create user
+    input attributes  email,phone,password,uploaded iamge
+    """
     try:
-        print(password)
-        # Create a new User instance\
-          #password validation
+
         if not re.match(PASSWORD_REGEX, password):
             return {'message': 'Password must be at least 8 characters long and contain at least one letter and one digit'}   
-          #password hasging
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
         new_user = User(
             fullname=fullname,

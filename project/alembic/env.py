@@ -5,6 +5,8 @@ from sqlalchemy import pool
 from users.database import Base
 
 from alembic import context
+from users.models import User,Profile,Base
+metadata = MetaData()
 from dotenv import load_dotenv
 import os
 from sqlalchemy import create_engine
@@ -91,14 +93,13 @@ def run_migrations_online() -> None:
     """
     # Retrieve the database name from the environment variable
     db_name = os.getenv("DB_NAME_1")
+    user = os.getenv("DB_USER")
+    password = os.getenv("DB_PASSWOrD")
+    
+    # Construct the updated database URL
+    sqlalchemy_url = f"postgresql://{user}:{password}@localhost/{db_name}"
 
-    # Reconstruct the URL with the updated database name
-    url = os.getenv("DATABASE_URL")  # Assuming you have a DATABASE_URL environment variable
-    url_parts = url.split("/")
-    url_parts[-1] = db_name
-    updated_url = "/".join(url_parts)
-
-    connectable = create_engine(updated_url)
+    connectable = create_engine(sqlalchemy_url)
 
     with connectable.connect() as connection:
         context.configure(
